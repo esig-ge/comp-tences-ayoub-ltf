@@ -1,0 +1,39 @@
+/* Fichier : taches/static/css/taches.css */
+
+/* Style pour le corps de la page */
+body {
+    padding-left: 15px;
+    font-family: 'Helvetica', sans-serif;
+}
+
+/* Style pour le titre principal */
+h1 a {
+    color: #FCA205; /* Orange Vif */
+    font-size: 36pt;
+    text-decoration: none; /* Enlève le soulignement si H1 est un lien */
+}
+
+/* Style pour le sous-titre de chaque tâche */
+h2 {
+    color: #555;
+}
+
+/* Style pour l'ensemble d'une tâche (à appliquer à un élément conteneur) */
+.tache-item {
+    margin-bottom: 20px;
+    padding: 10px;
+    border-left: 5px solid #007bff; /* Barre bleue */
+    background-color: #f8f9fa;
+}
+
+/* Style pour les tâches terminées */
+.completee {
+    opacity: 0.6; /* Rendre légèrement transparente */
+    text-decoration: line-through; /* Barrer le texte */
+}
+
+/* Style pour les tâches en retard/en cours (si vous ajoutez des classes plus tard) */
+.en-cours {
+    color: darkred;
+    font-weight: bold;
+}

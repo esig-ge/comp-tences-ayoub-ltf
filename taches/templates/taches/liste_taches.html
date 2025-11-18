@@ -1,0 +1,25 @@
+{% extends 'taches/base.html' %}
+{# Le tag {% load static %} n'est pas nécessaire ici s'il est déjà dans base.html #}
+{# De même, les tags HTML structurels (<head>, <body>) sont supprimés #}
+
+{% block title %}Ma Liste de Tâches{% endblock %}
+{# Optionnel : remplace le titre spécifique du <head> si un bloc title existe dans base.html #}
+
+{% block content %}
+    <h1>Liste des Tâches</h1>
+
+    {% for tache in taches %}
+        <h2>{{ tache.titre }}</h2>
+        <p>Créée le: {{ tache.date_creation }}</p>
+
+        {% if tache.completee %}
+            <p>Statut : **Terminée**</p>
+        {% else %}
+            <p>Statut : **En cours**</p>
+        {% endif %}
+
+        <hr>
+    {% empty %}
+        <p>Aucune tâche trouvée pour le moment !</p>
+    {% endfor %}
+{% endblock content %}
