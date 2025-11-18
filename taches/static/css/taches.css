@@ -1,39 +1,72 @@
 /* Fichier : taches/static/css/taches.css */
 
-/* Style pour le corps de la page */
+/*
+   NOTE: Comme vous utilisez Bootstrap dans base.html,
+   on se concentre ici sur la personnalisation des composants spécifiques.
+*/
+
+/* --- Base et Typographie --- */
+
 body {
-    padding-left: 15px;
-    font-family: 'Helvetica', sans-serif;
+    /* Supprime le padding-left car le conteneur Bootstrap gère déjà les marges */
+    /* font-family: 'Poppins', sans-serif;  <-- Vous pouvez importer une police Google moderne */
+    font-family: 'Helvetica Neue', Arial, sans-serif; /* Reste simple */
+    background-color: #f4f7f6; /* Fond très légèrement gris pour la douceur */
 }
 
-/* Style pour le titre principal */
-h1 a {
-    color: #FCA205; /* Orange Vif */
-    font-size: 36pt;
-    text-decoration: none; /* Enlève le soulignement si H1 est un lien */
-}
+/* --- Navigation et Titres --- */
 
-/* Style pour le sous-titre de chaque tâche */
-h2 {
-    color: #555;
+/* Applique uniquement si votre H1 N'EST PAS géré par la navbar de base.html */
+h1 {
+    font-weight: 300; /* Titre plus léger (moderne) */
+    margin-bottom: 25px;
+    color: #343a40; /* Gris foncé moderne */
 }
 
 /* Style pour l'ensemble d'une tâche (à appliquer à un élément conteneur) */
 .tache-item {
-    margin-bottom: 20px;
-    padding: 10px;
-    border-left: 5px solid #007bff; /* Barre bleue */
-    background-color: #f8f9fa;
+    /* Utilise une "carte" épurée */
+    background-color: #ffffff;
+    border: 1px solid #e9ecef; /* Bordure très fine et claire */
+    border-radius: 8px; /* Coins arrondis pour la douceur */
+    padding: 20px;
+    margin-bottom: 15px;
+
+    /* Ombre légère pour effet de profondeur */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+    /* Effet de transition subtil au survol */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.tache-item:hover {
+    /* Léger soulèvement au survol */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Style pour les tâches terminées */
 .completee {
-    opacity: 0.6; /* Rendre légèrement transparente */
-    text-decoration: line-through; /* Barrer le texte */
+    background-color: #e9ecef; /* Fond légèrement plus foncé */
+    border-left: 5px solid #6c757d; /* Ligne latérale grise */
+    opacity: 0.8;
+
+    /* Assurez-vous que le texte barré est clair */
+    text-decoration: line-through 2px;
+    color: #6c757d; /* Texte grisé */
 }
 
-/* Style pour les tâches en retard/en cours (si vous ajoutez des classes plus tard) */
+/* Style pour les tâches en cours ou urgentes */
 .en-cours {
-    color: darkred;
-    font-weight: bold;
+    border-left: 5px solid #dc3545; /* Ligne latérale rouge/alerte */
+    color: #dc3545;
+    font-weight: 600;
+}
+
+/* Style pour les sous-titres/dates des tâches */
+.date-info {
+    font-size: 0.9em;
+    color: #6c757d; /* Gris secondaire */
+    font-style: italic;
+    margin-top: -5px; /* Pour rapprocher de h2 */
 }
