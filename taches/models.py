@@ -8,7 +8,7 @@ class Tache(models.Model):
     date_creation = models.DateTimeField(default=timezone.now)
     date_due = models.DateTimeField(blank=True, null=True) # Date limite facultative
     completee = models.BooleanField(default=False) # L'état de la tâche
-    statut_en_cours = models.BooleanField(default=False)
+    statut_en_cours = models.BooleanField(default=True)
 
 
     def marquer_completee(self):

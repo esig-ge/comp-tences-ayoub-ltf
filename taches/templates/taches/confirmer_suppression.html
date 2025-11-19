@@ -20,24 +20,41 @@
                             Voulez-vous vraiment supprimer la tâche suivante de manière définitive ?
                         </p>
 
-                        <blockquote class="blockquote mb-0 p-3 bg-light rounded">
-                            <p class="mb-0"><strong>Tâche ID {{ tache.pk }}:</strong> {{ tache.titre }}</p>
-                            <footer class="blockquote-footer">Créée le {{ tache.date_creation|date:"Y-m-d" }}</footer>
+                        <blockquote class="blockquote mt-3 mb-3 p-3 bg-light rounded">
+
+                            <p class="lead mb-2">
+                                <strong>Tâche : </strong> {{ tache.titre }}
+                            </p>
+
+                            {% if tache.description %}
+                                <p class="text-muted small">
+                                    Description courte : {{ tache.description|truncatechars:50 }}
+                                </p>
+                            {% endif %}
+
+                            <p class="blockquote-footer mt-2">
+                                Créée le {{ tache.date_creation|date:"Y-m-d" }}
+                            </p>
+
                         </blockquote>
 
-                        {# Formulaire de soumission POST pour la suppression #}
-                        <form method="post" class="mt-4">
-                            {% csrf_token %}
 
-                            <button type="submit" class="btn btn-danger me-2">
-                                Confirmer la Suppression
-                            </button>
 
-                            <a href="{% url 'tache' %}" class="btn btn-secondary">
-                                Annuler et Retourner
-                            </a>
-                        </form>
-                    </div>
+
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <button type="submit"
+                            class="btn btn-danger me-2"
+                                onclick="return confirm('ATTENTION CETTE ACTION EST DEFINITIVE : Voulez-vous VRAIMENT supprimer la tâche « {{ tache.titre|escapejs }} » ?');">
+                            Confirmer la Suppression
+                        </button>
+
+                        {# Le lien Annuler et Retourner reste un lien simple #}
+                        <a href="{% url 'tache' %}" class="btn btn-secondary">
+                            Annuler et Retourner
+                        </a>
+                    </form></div>
+
                 </div>
             </div>
         </div>
