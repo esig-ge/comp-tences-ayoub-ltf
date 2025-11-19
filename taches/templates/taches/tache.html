@@ -1,4 +1,4 @@
-{% extends 'base.html' %} 
+{% extends 'taches/../../templates/base.html' %}
 {% load static %}
 
 {% block title %}Tâches en Cours{% endblock %}
@@ -35,16 +35,15 @@
                             </td>
                             <td>{{ tache.description|truncatechars:50 }}</td>
                             <td>
-                                {# Affichage conditionnel basé sur l'état de la tâche #}
-                                {% if tache.est_complete %}
-                                    <span class="badge bg-success">Terminée</span>
-                                {% else %}
+                                {% if tache.statut_en_cours %}
                                     <span class="badge bg-warning text-dark">En cours</span>
+                                {% else %}
+                                    <span class="badge bg-success">Terminée</span>
                                 {% endif %}
                             </td>
                             <td>
-                                <a href="#" class="btn btn-sm btn-primary">Modifier</a>
-                                <a href="#" class="btn btn-sm btn-danger">Supprimer</a>
+                                <a href="{% url 'tache_modifier' pk=tache.pk %}" class="btn btn-sm btn-primary">Modifier</a>
+                                <a href="{% url 'tache_supprimer' pk=tache.pk %}" class="btn btn-sm btn-danger">Supprimer</a>
                             </td>
                         </tr>
                     {% endfor %}
@@ -52,7 +51,6 @@
             </table>
 
         {% else %}
-            {# Message si aucune tâche n'est trouvée #}
             <div class="alert alert-info" role="alert">
                 Aucune tâche n'est actuellement enregistrée.
             </div>

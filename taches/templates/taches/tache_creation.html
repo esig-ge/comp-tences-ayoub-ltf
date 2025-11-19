@@ -1,8 +1,70 @@
-{% extends 'base.html' %}
+{% extends 'taches/../../templates/base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if tache %}Modifier Tâche{% else %}Créer une Tâche{% endif %}
+{% endblock %}
 
 {% block content %}
-<form method = "post">
-    {{ form.as_p }}
-    <button type="submit">Créer</button>
-    {% endblock content %}
-</form>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+
+                {# Titre Dynamique #}
+                <h1 class="mb-4">
+                    {% if tache %}
+                        ✏️ Modifier Tâche ID {{ tache.pk }}
+                    {% else %}
+                        ➕ Créer une Nouvelle Tâche
+                    {% endif %}
+                </h1>
+                <hr>
+
+                <div class="card shadow-sm">
+                    <div class="card-body">
+
+                        {# Action du formulaire: POST vers la même URL pour le PRG #}
+                        {# Si on est en modification, l'URL contient le PK et pointe vers tache_update #}
+                        <form method="post">
+
+                            {% csrf_token %}
+
+                            {# Affichage des erreurs #}
+                            {% if form.errors %}
+                                <div class="alert alert-danger">
+                                    <strong>Veuillez corriger les erreurs ci-dessous.</strong>
+                                </div>
+                            {% endif %}
+
+                            {# Affichage des champs du formulaire #}
+                            {% for field in form %}
+                                <div class="mb-3">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+
+                                    {% if field.errors %}
+                                        <div class="text-danger small">{{ field.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+
+                            {# Boutons d'action #}
+                            <button type="submit" class="btn btn-primary me-2">
+                                {% if tache %}Sauvegarder les Modifications{% else %}Enregistrer la Tâche{% endif %}
+                            </button>
+
+                            <a href="{% url 'tache' %}" class="btn btn-secondary">
+                                Annuler
+                            </a>
+
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

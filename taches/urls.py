@@ -4,7 +4,10 @@ from taches import views
 
 urlpatterns = [
     path('',views.home,name='home'),
-    path('liste/', views.liste_taches, name='tache'),  
-    path('creer-tache/', views.tacheCreate, name='tache_creation'),
+    path('liste/', views.liste_view, name='tache'),
+    path('creer-tache/', views.tache_create, name='tache_creation'),
+    path('modifier-tache/<int:pk>/', views.tache_update, name='tache_modifier'),
+    path('supprimer-tache/<int:pk>/',views.tache_delete,name='tache_supprimer'),
+    path('basculer-statut/<int:pk>/',views.tache_statut,name='basculer_statut'),
 
 ]
