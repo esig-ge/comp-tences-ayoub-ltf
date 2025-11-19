@@ -14,8 +14,6 @@
                     </div>
                     <div class="card-body">
                         <h5 class="card-title text-danger">Êtes-vous sûr(e) ?</h5>
-
-                        {# Affiche les détails de la tâche à supprimer #}
                         <p>
                             Voulez-vous vraiment supprimer la tâche suivante de manière définitive ?
                         </p>
@@ -38,9 +36,6 @@
 
                         </blockquote>
 
-
-
-
                     <form method="post" class="mt-4">
                         {% csrf_token %}
                         <button type="submit"
@@ -48,8 +43,6 @@
                                 onclick="return confirm('ATTENTION CETTE ACTION EST DEFINITIVE : Voulez-vous VRAIMENT supprimer la tâche « {{ tache.titre|escapejs }} » ?');">
                             Confirmer la Suppression
                         </button>
-
-                        {# Le lien Annuler et Retourner reste un lien simple #}
                         <a href="{% url 'tache' %}" class="btn btn-secondary">
                             Annuler et Retourner
                         </a>

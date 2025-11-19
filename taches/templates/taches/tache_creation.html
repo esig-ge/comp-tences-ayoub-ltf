@@ -48,11 +48,8 @@
                                 </div>
                             {% endfor %}
 
-                            {# Boutons d'action #}
                             <button type="submit"
                                     class="btn btn-primary me-2"
-
-                                    {# ⭐ AJOUT DE L'ONCLICK ICI ⭐ #}
                                     onclick="return confirm('Voulez-vous confirmer l\'enregistrement de cette tâche ?');">
 
                                 {% if tache %}Sauvegarder les Modifications{% else %}Enregistrer la Tâche{% endif %}

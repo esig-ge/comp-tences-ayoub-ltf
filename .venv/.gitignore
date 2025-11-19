@@ -1,0 +1,81 @@
+# ------------------------------------
+# 🐍 Python (Standard)
+# ------------------------------------
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg
+*.egg-info/
+.eggs/
+
+# Temporary files (e.g., created by some editors/tools)
+*~
+*.bak
+*.swp
+*.orig
+
+# ------------------------------------
+# 📦 Virtual Environment & Dependencies
+# ------------------------------------
+# Local development environments
+.env
+.venv/
+env/
+venv/
+myvenv/
+
+# Dependency files
+pip-log.txt
+pip-delete-this-file.txt
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+nosetests.xml
+coverage.xml
+pytest.ini
+.hypothesis/
+.mypy_cache/
+
+# ------------------------------------
+# 🌐 Django / Flask / Web
+# ------------------------------------
+# SQLite database file
+db.sqlite3
+
+# Static files compiled or collected (if at project root)
+# Assurez-vous que /static/ est le bon chemin si vous le collectez au root
+/static/
+
+# Media files uploaded by users
+media/
+uploads/
+
+# ------------------------------------
+# 💻 Operating System (OS) Files
+# ------------------------------------
+# macOS
+.DS_Store
+.fseventsd
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+._*
+
+# Windows
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# ------------------------------------
+# 💡 IDE and Editor Files
+# ------------------------------------
+# Visual Studio Code
+.vscode/
+.history/
+*.code-workspace
+nbuser.json # Azure Notebooks

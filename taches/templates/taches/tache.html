@@ -39,12 +39,10 @@
                                 {% endif %}
                             </td>
 
-                            {# COLONNE STATUT : Rendre irréversible (Badge non cliquable si Terminé) #}
                             <td>
                                 {% if tache.statut_en_cours %}
                                     <span class="badge bg-warning text-dark">En cours</span>
                                 {% else %}
-                                    {# Statut Terminé est du texte non cliquable pour irréversibilité #}
                                     <span class="badge bg-success">Terminée</span>
                                 {% endif %}
                             </td>
@@ -52,7 +50,6 @@
                             {# COLONNE ACTIONS #}
                             <td>
                                 {% if tache.statut_en_cours %}
-                                    {# Bouton Valider apparaît SEULEMENT si EN COURS #}
                                     <a href="{% url 'basculer_statut' pk=tache.pk %}"
                                        class="btn btn-sm btn-outline-success me-2"
                                        title="Valider la tâche"
@@ -60,11 +57,9 @@
                                         ✅ Valider
                                     </a>
 
-                                    {# Modifier et Supprimer sont toujours disponibles tant que la tâche est en cours #}
                                     <a href="{% url 'tache_modifier' pk=tache.pk %}" class="btn btn-sm btn-primary me-2">Modifier</a>
                                     <a href="{% url 'tache_supprimer' pk=tache.pk %}" class="btn btn-sm btn-danger">Supprimer</a>
                                 {% else %}
-                                    {# Si Terminé, seules les options de modification/suppression sont affichées (sans le bouton Valider) #}
                                     <a href="{% url 'tache_modifier' pk=tache.pk %}" class="btn btn-sm btn-primary me-2">Modifier</a>
                                     <a href="{% url 'tache_supprimer' pk=tache.pk %}" class="btn btn-sm btn-danger">Supprimer</a>
                                 {% endif %}
