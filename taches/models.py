@@ -10,7 +10,6 @@ class Tache(models.Model):
     completee = models.BooleanField(default=False) # L'état de la tâche
     statut_en_cours = models.BooleanField(default=True)
 
-
     def marquer_completee(self):
         self.completee = True
         self.save()
@@ -19,3 +18,13 @@ class Tache(models.Model):
         # Permet d'afficher le titre de la tâche dans l'interface d'administration
         return self.titre
 
+
+class Commentaire(models.Model):
+    # Ce champ crée le lien : Un commentaire appartient à une Tache
+    tache = models.ForeignKey(Tache, on_delete=models.CASCADE)
+
+    contenu = models.TextField()
+    date_creation = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"Commentaire sur {self.tache.titre}"
