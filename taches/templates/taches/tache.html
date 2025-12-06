@@ -9,13 +9,31 @@
         <h1 class="mb-4"> Liste des Tâches en Cours</h1>
         <hr>
 
+
+        <div class="row mb-4 bg-light p-3 border rounded">
+            <div class="col-md-5">
+                <input type="text" id="titre-tache-ajax" class="form-control" placeholder="Titre de la nouvelle tâche (obligatoire)">
+            </div>
+            <div class = "col-md-5">
+                <input type="text" id="description-tache-ajax" class="form-control" placeholder="Description courte (optionnel)">
+            </div>
+            <div class = "col-md-5">
+                <input type="date" id="due-date-ajax" class="form-control" placeholder="Date de fin de la tâche (optionnel)">
+            </div>
+            <div class="col-md-2">
+                <button id="btn-add-ajax" class="btn btn-primary w-100">Ajouter</button>
+            </div>
+
+
+
+
         <a href="{% url 'tache_creation' %}" class="btn btn-success mb-3">
             + Ajouter une nouvelle tâche
         </a>
 
         {% if taches %}
 
-            <table class="table table-striped table-hover">
+            <table id="table_taches" class="table table-striped table-hover">
                 <thead class="table-dark">
                     <tr>
                         <th>Titre</th>
@@ -25,7 +43,7 @@
                         <th>Date Limite</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tbody_taches">
                     {% for tache in taches %}
                         <tr>
                             <td>
@@ -59,12 +77,9 @@
 
                                     <a href="{% url 'tache_modifier' pk=tache.pk %}" class="btn btn-sm btn-primary me-2">Modifier</a>
                                     <a href="{% url 'tache_supprimer' pk=tache.pk %}" class="btn btn-sm btn-danger">Supprimer</a>
-                                    <a href=" {% url 'tache_detail' pk=tache.pk %}" class="btn btn-sm btn-info text-white ms-2">Détails</a>
                                 {% else %}
                                     <a href="{% url 'tache_modifier' pk=tache.pk %}" class="btn btn-sm btn-primary me-2">Modifier</a>
                                     <a href="{% url 'tache_supprimer' pk=tache.pk %}" class="btn btn-sm btn-danger">Supprimer</a>
-                                    <a href=" {% url 'tache_detail' pk=tache.pk %}" class="btn btn-sm btn-info text-white ms-2">Détails</a>
-
                                 {% endif %}
                             </td>
 
@@ -87,5 +102,12 @@
         {% endif %}
 
     </div>
+
+        {% block extra_js %}
+        {% csrf_token %}
+        <script>
+
+        </script>
+        {% endblock extra_js %}
 
 {% endblock content %}

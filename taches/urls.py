@@ -12,6 +12,6 @@ urlpatterns = [
     path('basculer-statut/<int:pk>/',views.tache_statut,name='basculer_statut'),
 
 
-    path('api/ajouter_tache',views.api_create_tache,name='tache_creation')
+    path('api/ajouter_tache',views.api_create_tache,name='api_tache_creation')
 
 ]

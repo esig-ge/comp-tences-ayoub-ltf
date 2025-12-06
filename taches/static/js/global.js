@@ -1,98 +1,90 @@
-// Fonction principale (Callback attendu par le DOM)
+function creerLigneTable(data) {
+
+    const dateAffichage = data.date_due || '<span class="badge bg-secondary">Non définie</span>';
+    const descriptionAffichage = data.description || '— Aucune description —';
+
+    return `
+        <tr data-tache-id="${data.id}">
+            <td><strong>${data.titre}</strong></td>
+            <td>${descriptionAffichage}</td> // Utilise la variable préparée
+            <td><span class="badge bg-warning text-dark">En cours</span></td>
+            <td>
+                <a href="/basculer-statut/${data.id}/" class="btn btn-sm btn-outline-success me-2">✅ Valider</a>
+                <a href="/modifier-tache/${data.id}/" class="btn btn-sm btn-primary me-2">Modifier</a>
+                <a href="/supprimer-tache/${data.id}/" class="btn btn-sm btn-danger">Supprimer</a>
+            </td>
+            <td>${dateAffichage}</td>
+        </tr>
+    `;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
 
-    // --- VARIABLES & OBJETS ---
-    const btn = document.getElementById('btn-envoyer');
-    const input = document.getElementById('texte-commentaire');
-    const zoneCommentaires = document.getElementById('zone-commentaires');
+    const btn = document.getElementById('btn-add-ajax');
+    const inputTitre = document.getElementById('titre-tache-ajax');
+    const inputDescription = document.getElementById('description-tache-ajax');
+    const inputDateDue = document.getElementById('due-date-ajax');
+    const tBodyTache = document.getElementById('tbody_taches');
+    const inputCSRF = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
 
-    // Critère : Utilisation d'objet de configuration
-    const config = {
-        url: '/api/ajouter-commentaire/',
-        motsInterdits: ['nul', 'mauvais'] // Critère : Tableau
-    };
 
-    // --- FONCTIONS ---
+    btn.addEventListener('click', function() {
+        const titre = inputTitre.value.trim();
+        const description = inputDescription.value.trim();
+        const date = inputDateDue.value.trim();
+        console.log('La tâche va être ajoutée !');
 
-    // Critère : Fonction assignée à une variable
-    const validation = function(texte) {
-        // Critère : Boucle et Condition
-        for (let i = 0; i < config.motsInterdits.length; i++) {
-            if (texte.includes(config.motsInterdits[i])) {
-                alert("Restons polis !");
-                return false;
-            }
+        if(titre === ""){
+            alert("Le titre est obligatoire !");
+            return;
         }
-        return true;
-    };
 
-    // Critère : Fonction de rappel (Callback) pour l'événement
-    function gererClic(event) {
-        let texte = input.value;
-        let tacheId = btn.getAttribute('data-id');
-
-        if (!validation(texte)) return; // Appel fonction interne
-
-        console.log("1. Clic détecté, lancement AJAX...");
-
-        // --- AJAX (fetch) ---
-        // Critère : Données structurées JSON
-        fetch(config.url, {
+        fetch('/api/ajouter_tache', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken') // Fonction utilitaire Django standard
+                'X-CSRFToken': inputCSRF
             },
-            body: JSON.stringify({ 'contenu': texte, 'tache_id': tacheId })
+            body: JSON.stringify({
+                titre: titre,
+                description: description || null,
+                date: date || null
+            })
         })
-        .then(function(response) {
-            // Critère : Asynchronisme (cette fonction s'exécute plus tard)
-            console.log("3. Réponse du serveur reçue !");
+
+        .then(response => {
+            if (!response.ok) {
+                // Si le serveur renvoie 400 ou 500, on passe au .catch()
+                throw new Error(`HTTP Error: ${response.status} - Vérifiez la console serveur (Django).`);
+            }
             return response.json();
         })
-        .then(function(data) {
-            if (data.status === 'success') {
-                ajouterAuDom(data.contenu, data.date); // Modification du DOM
-                input.value = ""; // Reset input
+        .then(data => {
+            // 1. Vérifie si le serveur a retourné un succès
+            if (data.status === 'ok') {
+
+                // 2. Création du nouveau nœud HTML
+                const newRowHtml = creerLigneTable(data);
+
+                // 3. Ajout du nœud au début du tbody (Modification significative du DOM)
+                tBodyTache.insertAdjacentHTML('afterbegin', newRowHtml);
+
+                inputTitre.value = '';
+                inputDescription.value = '';
+                inputDateDue.value = '';
+                console.log(`Tâche #${data.id} ajoutée avec succès!`);
+
+            } else {
+                // Erreur logique renvoyée par le JSON de Django
+                alert("Erreur du serveur (400) : " + data.message);
             }
+        })
+        .catch(error => {
+            // Gère les erreurs réseau, parsing JSON, ou celles lancées par le throw ci-dessus
+            console.error(error);
+            alert(`Échec de la requête: ${error.message || error}`);
         });
 
-        // Critère : Preuve d'asynchronisme
-        console.log("2. Code exécuté APRES l'appel Fetch mais AVANT la réponse (Preuve Async)");
-    }
+    });
 
-    // Critère : Modification du DOM (Création de nœuds)
-    function ajouterAuDom(texte, date) {
-        // 1. Création de l'élément (Nœud enfant)
-        let nouveauDiv = document.createElement('div');
-
-        // 2. Configuration
-        nouveauDiv.className = "commentaire";
-        nouveauDiv.innerHTML = `<p><strong>${date}</strong> : ${texte}</p>`;
-        nouveauDiv.style.backgroundColor = "#e0f7fa"; // Petit effet visuel
-
-        // 3. Insertion dans l'arbre (Relation Parent/Enfant)
-        // zoneCommentaires est le PARENT, nouveauDiv est l'ENFANT
-        zoneCommentaires.appendChild(nouveauDiv);
-    }
-
-    // --- ÉVÉNEMENT ---
-    // Critère : Gestionnaire d'événement (Event Handler)
-    btn.addEventListener('click', gererClic);
 });
-
-// Fonction standard Django pour récupérer le cookie CSRF (nécessaire pour POST)
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
