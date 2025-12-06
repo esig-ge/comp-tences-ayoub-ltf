@@ -68,15 +68,19 @@ def tache_statut(request, pk):
 
 def api_create_tache(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        titre_recu = data.get('titre')
+        try:
+            data = json.loads(request.body)
+            titre_recu = data.get('titre')
 
-        if titre_recu:
-            tache = Tache.objects.create(titre = titre_recu)
+            if titre_recu:
+                tache = Tache.objects.create(titre = titre_recu)
+                return JsonResponse({'status' : 'ok' ,'id' : tache.id , 'titre' : tache.titre})
 
-        return JsonResponse({
-           'status' : 'ok' ,'id' : tache.id , 'titre' : tache.titre
-        })
+            return JsonResponse({'status': 'erreur: champs manquants'}, status=400)
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'erreur: JSON invalide'}, status=400)
+
+    return JsonResponse({'status': 'erreur: méthode non autorisée'}, status=405)
 
 
 
