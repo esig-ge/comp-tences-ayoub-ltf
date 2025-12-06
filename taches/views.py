@@ -71,10 +71,21 @@ def api_create_tache(request):
         try:
             data = json.loads(request.body)
             titre_recu = data.get('titre')
+            desc_recue = data.get('description')
+            date_due_recue = data.get('date')
 
             if titre_recu:
-                tache = Tache.objects.create(titre = titre_recu)
-                return JsonResponse({'status' : 'ok' ,'id' : tache.id , 'titre' : tache.titre})
+                tache = Tache.objects.create(titre=titre_recu,
+                    description=desc_recue or '',
+                    date_due=date_due_recue or None,
+                    statut_en_cours=True
+                )
+                return JsonResponse({'status' : 'ok' ,
+                                     'id' : tache.id ,
+                                     'titre' : tache.titre,
+                                     'description' : tache.description,
+                                     'date' : tache.date_due,
+                                     })
 
             return JsonResponse({'status': 'erreur: champs manquants'}, status=400)
         except json.JSONDecodeError:
