@@ -3,7 +3,6 @@ from .models import Tache, Commentaire
 from .forms import TacheForm
 import json
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 
 def home(request):
     return render(
@@ -35,6 +34,8 @@ def tache_create(request):
         {'form': form}
     )
 
+
+
 def tache_update(request, pk):
     """ on récupère la tâche par son identifiant """
     tache = get_object_or_404(Tache, pk=pk)
@@ -65,38 +66,17 @@ def tache_statut(request, pk):
     return redirect('tache')
 
 
-def tache_detail(request, pk):
-    """
-    1. Récupère la tâche demandée grâce à l'ID (pk) dans l'URL.
-    2. Renvoie le fichier HTML 'detail_tache.html'.
-    """
-    tache = get_object_or_404(Tache, pk=pk)
-
-    # On passe la variable 'tache' au template pour l'afficher
-    return render(request, 'taches/detail_tache.html', {'tache': tache})
-
-
-
-def ajouter_commentaire_ajax(request):
-    """
-    Cette vue reçoit une requête AJAX (POST), crée un commentaire en BDD
-    et renvoie les données du nouveau commentaire en JSON.
-    """
+def api_create_tache(request):
     if request.method == 'POST':
-        # 1. On décode les données JSON envoyées par le JS
         data = json.loads(request.body)
-        contenu = data.get('contenu')
-        tache_id = data.get('tache_id')
+        titre_recu = data.get('titre')
 
-        # 2. On sauvegarde en BDD (Dialogue BDD)
-        tache = Tache.objects.get(id=tache_id)
-        nouveau_com = Commentaire.objects.create(tache=tache, contenu=contenu)
+        if titre_recu:
+            tache = Tache.objects.create(titre = titre_recu)
 
-        # 3. On renvoie une réponse JSON (Client <-> Serveur)
         return JsonResponse({
-            'status': 'success',
-            'contenu': nouveau_com.contenu,
-            'date': nouveau_com.date_creation.strftime("%d/%m/%Y")
+           'status' : 'ok' ,'id' : tache.id , 'titre' : tache.titre
         })
 
-    return JsonResponse({'status': 'error'}, status=400)
+
+
