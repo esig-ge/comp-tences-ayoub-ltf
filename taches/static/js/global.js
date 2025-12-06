@@ -6,7 +6,7 @@ function creerLigneTable(data) {
     return `
         <tr data-tache-id="${data.id}">
             <td><strong>${data.titre}</strong></td>
-            <td>${descriptionAffichage}</td> // Utilise la variable préparée
+            <td>${descriptionAffichage}</td>
             <td><span class="badge bg-warning text-dark">En cours</span></td>
             <td>
                 <a href="/basculer-statut/${data.id}/" class="btn btn-sm btn-outline-success me-2">✅ Valider</a>
