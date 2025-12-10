@@ -1,4 +1,5 @@
 from django.conf import settings
+from typing_extensions import Required, NotRequired
 from django.db import models
 from django.utils import timezone
 
