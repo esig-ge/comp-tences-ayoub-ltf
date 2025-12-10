@@ -3,6 +3,14 @@ function creerLigneTable(data) {
     const dateAffichage = data.date_due || '<span class="badge bg-secondary">Non définie</span>';
     const descriptionAffichage = data.description || '— Aucune description —';
 
+     const monTr = document.createElement('tr');
+     const monTd = document.createElement("td");
+
+     monTr.textContent = data.titre
+    monTd.href= "/modifier-tache/${data.id}/"
+    monTd.appendChild()
+     monTd.appendChild()
+
     return `
         <tr data-tache-id="${data.id}">
             <td><strong>${data.titre}</strong></td>
@@ -76,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             } else {
                 // Erreur logique renvoyée par le JSON de Django
-                alert("Erreur du serveur (400) : " + data.message);
+                alert(`Erreur du serveur (400) : ${data.message}` );
             }
         })
         .catch(error => {
