@@ -1,89 +1,128 @@
 function creerLigneTable(data) {
-
+    // Définition des valeurs
     const dateAffichage = data.date_due || '<span class="badge bg-secondary">Non définie</span>';
     const descriptionAffichage = data.description || '— Aucune description —';
 
-    return `
-        <tr data-tache-id="${data.id}">
-            <td><strong>${data.titre}</strong></td>
-            <td>${descriptionAffichage}</td>
-            <td><span class="badge bg-warning text-dark">En cours</span></td>
-            <td>
-                <a href="/basculer-statut/${data.id}/" class="btn btn-sm btn-outline-success me-2">✅ Valider</a>
-                <a href="/modifier-tache/${data.id}/" class="btn btn-sm btn-primary me-2">Modifier</a>
-                <a href="/supprimer-tache/${data.id}/" class="btn btn-sm btn-danger">Supprimer</a>
-            </td>
-            <td>${dateAffichage}</td>
-        </tr>
+    const monTr = document.createElement('tr');
+    monTr.dataset.tacheId = data.id;
+
+    const tdTitre = document.createElement("td");
+    tdTitre.innerHTML = `<strong>${data.titre}</strong>`;
+    monTr.appendChild(tdTitre);
+
+    const tdDescription = document.createElement("td");
+    tdDescription.innerHTML = descriptionAffichage;
+    monTr.appendChild(tdDescription);
+
+    const tdStatut = document.createElement("td");
+    tdStatut.innerHTML = '<span class="badge bg-warning text-dark">En cours</span>';
+    monTr.appendChild(tdStatut);
+
+    const tdDate = document.createElement("td");
+    tdDate.innerHTML = data.date_due || '<span class="badge bg-secondary">Non définie</span>';
+    monTr.appendChild(tdDate);
+
+    // 5. ACTIONS (IMPORTANT : Position 5 - La fin)
+    const tdActions = document.createElement("td");
+    tdActions.innerHTML = `
+        <a href="/basculer-statut/${data.id}/" class="btn btn-sm btn-outline-success me-2">✅ Valider</a>
+        <a href="/modifier-tache/${data.id}/" class="btn btn-sm btn-primary me-2">Modifier</a>
+        <a href="/supprimer-tache/${data.id}/" class="btn btn-sm btn-danger">Supprimer</a>
     `;
+    monTr.appendChild(tdActions);
+
+    const noTaskRow = document.getElementById('no-task-row');
+    if (noTaskRow) {
+        noTaskRow.remove();
+    }
+
+    return monTr;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    const btn = document.getElementById('btn-add-ajax');
-    const inputTitre = document.getElementById('titre-tache-ajax');
-    const inputDescription = document.getElementById('description-tache-ajax');
-    const inputDateDue = document.getElementById('due-date-ajax');
-    const tBodyTache = document.getElementById('tbody_taches');
-    const inputCSRF = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+    // Initialisation compacte des variables de l'interface (éléments du DOM)
+    const { btn, titre, description, dateDue, tBodyTache, csrfToken } = {
+        btn: document.getElementById('btn-add-ajax'),
+        titre: document.getElementById('titre-tache-ajax'),
+        description: document.getElementById('description-tache-ajax'),
+        dateDue: document.getElementById('due-date-ajax'),
+        tBodyTache: document.getElementById('tbody_taches'),
+        csrfToken: document.querySelector('input[name="csrfmiddlewaretoken"]').value
+    };
 
-
+    // Écoute de l'événement click sur le bouton d'ajout (Callback)
     btn.addEventListener('click', function() {
-        const titre = inputTitre.value.trim();
-        const description = inputDescription.value.trim();
-        const date = inputDateDue.value.trim();
-        console.log('La tâche va être ajoutée !');
+        // Initialisation des variables avec les données utilisateur
+        const dataTitre = titre.value.trim();
+        const dataDescription = description.value.trim();
+        const dataDate = dateDue.value.trim();
+        console.log('La tâche va être ajoutée via XHR !');
 
-        if(titre === ""){
+        // Validation du titre
+        if (dataTitre === "") {
             alert("Le titre est obligatoire !");
             return;
         }
 
-        fetch('/api/ajouter_tache', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': inputCSRF
-            },
-            body: JSON.stringify({
-                titre: titre,
-                description: description || null,
-                date: date || null
-            })
-        })
+        const postData = JSON.stringify({
+        titre: dataTitre,
+        description: dataDescription || null,
+        date_due: dataDate || null
 
-        .then(response => {
-            if (!response.ok) {
-                // Si le serveur renvoie 400 ou 500, on passe au .catch()
-                throw new Error(`HTTP Error: ${response.status} - Vérifiez la console serveur (Django).`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            // 1. Vérifie si le serveur a retourné un succès
-            if (data.status === 'ok') {
-
-                // 2. Création du nouveau nœud HTML
-                const newRowHtml = creerLigneTable(data);
-
-                // 3. Ajout du nœud au début du tbody (Modification significative du DOM)
-                tBodyTache.insertAdjacentHTML('afterbegin', newRowHtml);
-
-                inputTitre.value = '';
-                inputDescription.value = '';
-                inputDateDue.value = '';
-                console.log(`Tâche #${data.id} ajoutée avec succès!`);
-
-            } else {
-                // Erreur logique renvoyée par le JSON de Django
-                alert("Erreur du serveur (400) : " + data.message);
-            }
-        })
-        .catch(error => {
-            // Gère les erreurs réseau, parsing JSON, ou celles lancées par le throw ci-dessus
-            console.error(error);
-            alert(`Échec de la requête: ${error.message || error}`);
         });
+
+        // Création d'une requête XMLHttpRequest (similaire à l'exemple)
+        var xhr = new XMLHttpRequest();
+        // Configuration : POST sur l'URL, mode asynchrone (true)
+        xhr.open("POST", '/api/ajouter_tache', true);
+
+        // Ajout des Headers requis (Content-Type pour le JSON et X-CSRFToken pour Django)
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('X-CSRFToken', csrfToken);
+
+
+        // Gestion de la réponse (Fonction de rappel asynchrone)
+        xhr.onreadystatechange = function () {
+            // Mettre à jour la variable une fois la réponse reçue (État 4 = TERMINE)
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    try {
+                        // Tente de parser la réponse JSON
+                        const data = JSON.parse(xhr.responseText);
+
+                        // Test du statut logique renvoyé par le serveur
+                        if (data.status === 'ok') {
+
+                            // Création du nouveau nœud DOM <tr> (Manipulation du DOM)
+                            const newRow = creerLigneTable(data);
+
+                            // Insertion du nœud au début du tbody
+                            tBodyTache.prepend(newRow); // <-- Ajout de nœud significatif
+
+                            // Nettoyage des champs de formulaire
+                            titre.value = description.value = dateDue.value = '';
+                            console.log(`Réponse reçue. Tâche #${data.id} ajoutée avec succès!`);
+
+                        } else {
+                            // Erreur logique JSON
+                            alert(`Erreur du serveur : ${data.message}` );
+                        }
+                    } catch (e) {
+                        // Erreur si la réponse n'est pas un JSON valide
+                        console.error("Erreur de parsing JSON:", e, xhr.responseText);
+                        alert("Erreur: Réponse serveur non valide (non-JSON).");
+                    }
+                } else {
+                    // Gère les erreurs HTTP (400, 500, etc.)
+                    console.error(`Erreur HTTP: ${xhr.status} - ${xhr.statusText}`);
+                    alert(`Échec de la requête: HTTP ${xhr.status}`);
+                }
+            }
+        };
+
+        // Envoi de la requête avec les données POST
+        xhr.send(postData);
 
     });
 
