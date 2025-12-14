@@ -77,7 +77,7 @@ def api_create_tache(request):
             data = json.loads(request.body)
             titre_recu = data.get('titre')
             desc_recue = data.get('description')
-            date_due_recue = data.get('date_due') # Rappel: bien utiliser 'date_due'
+            date_due_recue = data.get('date_due')
 
             if titre_recu:
                 tache = Tache.objects.create(

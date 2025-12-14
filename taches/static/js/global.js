@@ -16,7 +16,7 @@ function creerLigneTable(data) {
     var monTr = document.createElement('tr');
     monTr.dataset.tacheId = data.id;
 
-    // Colonne Titre (On utilise le + pour coller les morceaux)
+    // Colonne Titre
     var tdTitre = document.createElement("td");
     tdTitre.innerHTML = '<strong>' + data.titre + '</strong>';
     monTr.appendChild(tdTitre);
@@ -36,7 +36,7 @@ function creerLigneTable(data) {
     tdDate.innerHTML = dateAffichage;
     monTr.appendChild(tdDate);
 
-    // Colonne Actions (On coupe la ligne avec des + pour que ce soit lisible)
+    // Colonne Actions
     var tdActions = document.createElement("td");
     tdActions.innerHTML = '<a href="/basculer-statut/' + data.id + '/" class="btn btn-sm btn-outline-success me-2">✅ Valider</a>' +
                           '<a href="/modifier-tache/' + data.id + '/" class="btn btn-sm btn-primary me-2">Modifier</a>' +
