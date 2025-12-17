@@ -8,8 +8,8 @@ function creerLigneTable(data) {
 
      monTr.textContent = data.titre
     monTd.href= "/modifier-tache/${data.id}/"
-    monTd.appendChild()
-     monTd.appendChild()
+    monTd.appendChild(data.titre)
+    monTd.appendChild(data.description)
 
     return `
         <tr data-tache-id="${data.id}">
