@@ -1,98 +1,126 @@
 function creerLigneTable(data) {
+    // 1. Gestion de la date (si null, on met un badge)
+    var dateAffichage = data.date_due;
+    if (!dateAffichage) {
+        dateAffichage = '<span class="badge bg-secondary">Non définie</span>';
+        }
 
-    const dateAffichage = data.date_due || '<span class="badge bg-secondary">Non définie</span>';
-    const descriptionAffichage = data.description || '— Aucune description —';
+    // 2. Gestion de la description
+    var descriptionAffichage = data.description;
+    if (!descriptionAffichage) {
+        descriptionAffichage = '— Aucune description —';
+    }
 
-     const monTr = document.createElement('tr');
-     const monTd = document.createElement("td");
 
-     monTr.textContent = data.titre
-    monTd.href= "/modifier-tache/${data.id}/"
-    monTd.appendChild(data.titre)
-    monTd.appendChild(data.description)
+    // Création de la ligne
+    var monTr = document.createElement('tr');
+    monTr.dataset.tacheId = data.id;
 
-    return `
-        <tr data-tache-id="${data.id}">
-            <td><strong>${data.titre}</strong></td>
-            <td>${descriptionAffichage}</td>
-            <td><span class="badge bg-warning text-dark">En cours</span></td>
-            <td>
-                <a href="/basculer-statut/${data.id}/" class="btn btn-sm btn-outline-success me-2">✅ Valider</a>
-                <a href="/modifier-tache/${data.id}/" class="btn btn-sm btn-primary me-2">Modifier</a>
-                <a href="/supprimer-tache/${data.id}/" class="btn btn-sm btn-danger">Supprimer</a>
-            </td>
-            <td>${dateAffichage}</td>
-        </tr>
-    `;
+    // Colonne Titre
+    var tdTitre = document.createElement("td");
+    tdTitre.innerHTML = '<strong>' + data.titre + '</strong>';
+    monTr.appendChild(tdTitre);
+
+    // Colonne Description
+    var tdDescription = document.createElement("td");
+    tdDescription.innerHTML = descriptionAffichage;
+    monTr.appendChild(tdDescription);
+
+    // Colonne Statut
+    var tdStatut = document.createElement("td");
+    tdStatut.innerHTML = '<span class="badge bg-warning text-dark">En cours</span>';
+    monTr.appendChild(tdStatut);
+
+    // Colonne Date
+    var tdDate = document.createElement("td");
+    tdDate.innerHTML = dateAffichage;
+    monTr.appendChild(tdDate);
+
+    // Colonne Actions
+    var tdActions = document.createElement("td");
+    tdActions.innerHTML = '<a href="/basculer-statut/' + data.id + '/" class="btn btn-sm btn-outline-success me-2">✅ Valider</a>' +
+                          '<a href="/modifier-tache/' + data.id + '/" class="btn btn-sm btn-primary me-2">Modifier</a>' +
+                          '<a href="/supprimer-tache/' + data.id + '/" class="btn btn-sm btn-danger">Supprimer</a>';
+    monTr.appendChild(tdActions);
+
+    // Suppression de la ligne "Aucune tâche" si elle existe
+    var noTaskRow = document.getElementById('no-task-row');
+    if (noTaskRow) {
+        noTaskRow.remove();
+    }
+
+    return monTr;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    const btn = document.getElementById('btn-add-ajax');
-    const inputTitre = document.getElementById('titre-tache-ajax');
-    const inputDescription = document.getElementById('description-tache-ajax');
-    const inputDateDue = document.getElementById('due-date-ajax');
-    const tBodyTache = document.getElementById('tbody_taches');
-    const inputCSRF = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+    // Sélection des éléments HTML
+    var btn = document.getElementById('btn-add-ajax');
+    var inputTitre = document.getElementById('titre-tache-ajax');
+    var inputDesc = document.getElementById('description-tache-ajax');
+    var inputDate = document.getElementById('due-date-ajax');
+    var tBodyTache = document.getElementById('tbody_taches');
+    var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
 
-
+    // Clic sur le bouton
     btn.addEventListener('click', function() {
-        const titre = inputTitre.value.trim();
-        const description = inputDescription.value.trim();
-        const date = inputDateDue.value.trim();
-        console.log('La tâche va être ajoutée !');
 
-        if(titre === ""){
+        var valTitre = inputTitre.value.trim();
+        var valDesc = inputDesc.value.trim();
+        var valDate = inputDate.value.trim();
+
+        console.log('La tâche va être ajoutée via XHR !');
+
+        if (valTitre === "") {
             alert("Le titre est obligatoire !");
             return;
         }
 
-        fetch('/api/ajouter_tache', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': inputCSRF
-            },
-            body: JSON.stringify({
-                titre: titre,
-                description: description || null,
-                date: date || null
-            })
-        })
-
-        .then(response => {
-            if (!response.ok) {
-                // Si le serveur renvoie 400 ou 500, on passe au .catch()
-                throw new Error(`HTTP Error: ${response.status} - Vérifiez la console serveur (Django).`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            // 1. Vérifie si le serveur a retourné un succès
-            if (data.status === 'ok') {
-
-                // 2. Création du nouveau nœud HTML
-                const newRowHtml = creerLigneTable(data);
-
-                // 3. Ajout du nœud au début du tbody (Modification significative du DOM)
-                tBodyTache.insertAdjacentHTML('afterbegin', newRowHtml);
-
-                inputTitre.value = '';
-                inputDescription.value = '';
-                inputDateDue.value = '';
-                console.log(`Tâche #${data.id} ajoutée avec succès!`);
-
-            } else {
-                // Erreur logique renvoyée par le JSON de Django
-                alert(`Erreur du serveur (400) : ${data.message}` );
-            }
-        })
-        .catch(error => {
-            // Gère les erreurs réseau, parsing JSON, ou celles lancées par le throw ci-dessus
-            console.error(error);
-            alert(`Échec de la requête: ${error.message || error}`);
+        // Préparation des données
+        var postData = JSON.stringify({
+            titre: valTitre,
+            description: valDesc || null,
+            date_due: valDate || null
         });
 
-    });
+        // Requête AJAX
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", '/api/ajouter_tache', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('X-CSRFToken', csrfToken);
 
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+
+                        if (data.status === 'ok') {
+                            // Création et ajout de la ligne
+                            var newRow = creerLigneTable(data);
+                            tBodyTache.prepend(newRow);
+
+                            // Vider les champs
+                            inputTitre.value = '';
+                            inputDesc.value = '';
+                            inputDate.value = '';
+
+                            console.log('Réponse reçue. Tâche #' + data.id + ' ajoutée avec succès!');
+
+                        } else {
+                            alert('Erreur du serveur : ' + data.message);
+                        }
+                    } catch (e) {
+                        console.error("Erreur de parsing JSON:", e, xhr.responseText);
+                        alert("Erreur: Réponse serveur non valide (non-JSON).");
+                    }
+                } else {
+                    console.error('Erreur HTTP: ' + xhr.status + ' - ' + xhr.statusText);
+                    alert('Échec de la requête: HTTP ' + xhr.status);
+                }
+            }
+        };
+
+        xhr.send(postData);
+    });
 });

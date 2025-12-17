@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect,get_object_or_404
-from .models import Tache
 from .forms import TacheForm
 import json
 from django.http import JsonResponse
+from django.template.defaultfilters import date as django_date_filter
+from .models import Tache
+
 
 def home(request):
     return render(
@@ -66,32 +68,42 @@ def tache_statut(request, pk):
     return redirect('tache')
 
 
+
+
+
 def api_create_tache(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
             titre_recu = data.get('titre')
             desc_recue = data.get('description')
-            date_due_recue = data.get('date')
+            date_due_recue = data.get('date_due')
 
             if titre_recu:
-                tache = Tache.objects.create(titre=titre_recu,
+                tache = Tache.objects.create(
+                    titre=titre_recu,
                     description=desc_recue or '',
                     date_due=date_due_recue or None,
                     statut_en_cours=True
                 )
-                return JsonResponse({'status' : 'ok' ,
-                                     'id' : tache.id ,
-                                     'titre' : tache.titre,
-                                     'description' : tache.description,
-                                     'date' : tache.date_due,
-                                     })
+                tache.refresh_from_db()
+                # CORRECTION ICI : on force str()
+                if tache.date_due:
+                    # On convertit le "SafeString" de Django en string Python pure
+                    date_formatee = str(django_date_filter(tache.date_due, "j F Y H:i"))
+                else:
+                    date_formatee = None
+
+                return JsonResponse({
+                    'status' : 'ok',
+                    'id' : tache.id,
+                    'titre' : tache.titre,
+                    'description' : tache.description,
+                    'date_due' : date_formatee,
+                })
 
             return JsonResponse({'status': 'erreur: champs manquants'}, status=400)
         except json.JSONDecodeError:
             return JsonResponse({'status': 'erreur: JSON invalide'}, status=400)
 
     return JsonResponse({'status': 'erreur: méthode non autorisée'}, status=405)
-
-
-
