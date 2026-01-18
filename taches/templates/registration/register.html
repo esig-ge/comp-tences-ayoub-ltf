@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Créer un compte</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">S'inscrire</button>
+                        </div>
+                    </form>
+                    <hr>
+                    <p class="text-center mb-0">Déjà inscrit ? <a href="{% url 'login' %}">Connectez-vous ici</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}te ? <a href="{% url 'login' %}">Connectez-vous ici</a></p>
