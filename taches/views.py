@@ -77,13 +77,10 @@ def tache_statut(request, pk):
 @login_required
 
 def tache_delete(request, pk):
-    print(f">>> TENTATIVE DE SUPPRESSION DE LA TACHE {pk} <<<")
-
     tache = get_object_or_404(Tache, pk=pk)
     if request.method == 'POST':
         tache.delete()
 
-    print(f">>> TACHE {pk} SUPPRIMEE AVEC SUCCES <<<")  # Debug
     return redirect('tache')
 
 
