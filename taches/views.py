@@ -11,7 +11,6 @@ from .forms import TacheForm
 from .models import Tache
 
 from django.conf import settings
-# Assure-toi d'avoir installé le SDK avec : pip install google-genai
 from google import genai
 from google.genai import types
 
@@ -19,82 +18,79 @@ from google.genai import types
 @login_required
 def chat_with_coach(request):
     if request.method != 'POST':
-        return JsonResponse({'error': 'Seules les requêtes POST sont autorisées'}, status=405)
+        return JsonResponse({'error': 'POST requis'}, status=405)
 
     try:
         data = json.loads(request.body)
         user_message = data.get('message')
-        if not user_message:
-            return JsonResponse({'error': 'Message vide'}, status=400)
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Format JSON invalide'}, status=400)
 
-    # --- 1. DÉFINITION DES OUTILS DE L'IA ---
-    # Ces fonctions sont dans la vue, donc elles connaissent "request.user" !
-
+    # --- 1. DÉFINITION DES OUTILS ---
     def get_current_tasks() -> str:
-        """Récupère la liste des tâches en cours de l'utilisateur pour l'analyser."""
+        """Récupère la liste des tâches de l'utilisateur."""
         taches = Tache.objects.filter(user=request.user, statut_en_cours=True)
         if not taches:
-            return "L'utilisateur n'a aucune tâche en cours pour le moment."
-
-        # On formate les tâches en texte pour que l'IA les comprenne
-        liste_texte = "\n".join([f"- ID: {t.id} | Titre: {t.titre}" for t in taches])
-        return f"Voici les tâches actuelles :\n{liste_texte}"
+            return "L'utilisateur n'a aucune tâche en cours."
+        return "\n".join([f"ID: {t.id} - {t.titre}" for t in taches])
 
     def add_task(titre: str) -> str:
-        """Ajoute une nouvelle tâche à la to-do list de l'utilisateur."""
+        """Ajoute une nouvelle tâche."""
         Tache.objects.create(titre=titre, statut_en_cours=True, user=request.user)
-        return f"Action réussie : La tâche '{titre}' a été ajoutée à la base de données."
+        return f"Action réussie : La tâche '{titre}' a été ajoutée."
 
     def complete_task(task_id: int) -> str:
-        """Marque une tâche comme terminée en utilisant obligatoirement son ID."""
+        """Marque une tâche comme terminée via son ID."""
         try:
             tache = Tache.objects.get(id=task_id, user=request.user)
             tache.statut_en_cours = False
             tache.save()
-            return f"Action réussie : La tâche numéro {task_id} est maintenant terminée."
+            return f"Action réussie : La tâche {task_id} est terminée."
         except Tache.DoesNotExist:
-            return f"Erreur : Aucune tâche trouvée avec l'ID {task_id}."
+            return f"Erreur : Tâche {task_id} introuvable."
 
-    # --- 2. CONFIGURATION DE GEMINI ---
+    def delete_task(task_id: int) -> str:
+        """Supprime définitivement une tâche de la base de données via son ID."""
+        try:
+            tache = Tache.objects.get(id=task_id, user=request.user)
+            titre = tache.titre
+            tache.delete()
+            return f"Action réussie : La tâche '{titre}' (ID: {task_id}) a été supprimée."
+        except Tache.DoesNotExist:
+            return f"Erreur : Impossible de trouver la tâche {task_id} pour la supprimer."
 
-    # On initialise le client avec ta clé secrète
+    # --- 2. CONFIGURATION GEMINI ---
     client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-    # La personnalité de ton agent
     system_instruction = """
-    Tu es 'ProCoach', un assistant de productivité expert en gestion du temps.
-    Ton but est d'aider l'utilisateur à s'organiser de manière positive et directe.
-    Tu PEUX et tu DOIS utiliser tes outils pour lire ses tâches, en ajouter, ou en terminer.
-    Ne dis pas 'je vais le faire', fais-le directement avec l'outil approprié.
+    Tu es 'ProCoach', un assistant expert en productivité. 
+    Tu dois aider l'utilisateur à gérer ses tâches.
+    Si l'utilisateur te demande d'ajouter ou terminer une tâche, utilise tes outils.
+    Réponds toujours de manière concise et motivante.
     """
 
+    # CONFIGURATION CRUCIALE : Exécution automatique
     config = types.GenerateContentConfig(
         system_instruction=system_instruction,
-        tools=[get_current_tasks, add_task, complete_task],
+        tools=[get_current_tasks, add_task, complete_task, delete_task],
         automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=False),
         temperature=0.7,
     )
 
-    # --- 3. DISCUSSION AVEC L'IA ---
-
+    # --- 3. GÉNÉRATION DE LA RÉPONSE ---
     try:
-        # On utilise l'API pour générer la réponse. L'IA décidera toute seule
-        # si elle doit utiliser un outil ou simplement répondre en texte !
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-2.5-flash', # Version à jour
             contents=user_message,
             config=config
         )
 
-        # On renvoie la réponse de l'IA au front-end JavaScript
+        # Le texte final après que l'IA a potentiellement utilisé un outil
         return JsonResponse({'status': 'ok', 'reply': response.text})
 
     except Exception as e:
+        print(f"Erreur Gemini: {str(e)}") # Pour voir l'erreur dans ton terminal
         return JsonResponse({'error': str(e)}, status=500)
-
-
 
 
 
